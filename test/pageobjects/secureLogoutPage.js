@@ -1,17 +1,18 @@
-import { $ } from '@wdio/globals'
-import signingInPage from './pagecopy1PositiveandNegativeTest';
+import signingInPage from './thesigningInPage.js';
+import { browser } from '@wdio/globals';
 
 class LogoutProcess extends signingInPage {
     get hamburgerMenu () {
-        return $(".bm-burger-button")
+        return () => $(".bm-burger-button");
     }
     get logoutBtn(){
-        return $("#logout_sidebar_link")
+        return () => $("#logout_sidebar_link");
     }
     async logout(){
-        await this.hamburgerMenu.click();
-        await this.logoutBtn.waitForClickable({ timeout: 3000 });
-        await this.logoutBtn.click();
+        await (await this.hamburgerMenu()).click();
+        await browser.execute(() => {
+            document.getElementById('logout_sidebar_link').click();
+        });
     }
 }
 
