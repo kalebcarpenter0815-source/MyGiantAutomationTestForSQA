@@ -19,11 +19,13 @@ class theSecurePage extends myPage {
     }
 
     get burgerBtn () {
-        return () => $('#react-burger-menu-btn');
+        return () => $('div[class="bm-burger-button"]');
     }
 
     async openHamburgerMenu () {
-        await (this.burgerBtn()).click();
+        const btn = this.burgerBtn();
+        await btn.waitForClickable({ timeout: 5000 });
+        await btn.click();
     }
 
     get allItemsLink () {
@@ -31,7 +33,11 @@ class theSecurePage extends myPage {
     }
 
     async clickAllItemsLink () {
-        await (this.allItemsLink()).click();
+        await (this.burgerBtn()).waitForClickable({ timeout: 5000 });
+        await (this.openHamburgerMenu());
+        const link = this.allItemsLink();
+        await link.waitForClickable({ timeout: 5000 });
+        await link.click();
     }
 
     get aboutLink () {
@@ -63,7 +69,9 @@ class theSecurePage extends myPage {
     }
     
     async clickRemoveItemFromCartBtn () {
-        await (this.removeItemFromCartBtn()).click();
+        const btn = this.removeItemFromCartBtn();
+        await btn.waitForClickable({ timeout: 10000 });
+        await btn.click();
     }
 
     get theXBtn () {
