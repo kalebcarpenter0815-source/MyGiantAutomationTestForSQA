@@ -1,4 +1,4 @@
-import { browser, expect } from '@wdio/globals'
+import { browser, expect } from '@wdio/globals' // In order to start my test, I need to have my scope be in the right file, so do MyFirstAutomationTestVSCodeTrial file in order to start my test because doing it with just the downloads automationprojectforsqa is out of scope.
 import theLoginPage from '../pageobjects/loginpage.js'
 import theSecurePage from '../pageobjects/HamburgerMenuPage.js'
 import LogoutProcess from '../pageobjects/secureLogoutPage.js'
@@ -23,17 +23,17 @@ describe('My Login application', () => {
     await browser.url('https://www.saucedemo.com/inventory.html');
     await theSecurePage.landingPage().waitForExist();
     await theSecurePage.clickAllItemsLink();
-    await theSecurePage.addFirstItemToCartBtn().waitForClickable();
-    await theSecurePage.clickAddFirstItemToCartBtn();
-    await theSecurePage.clickRemoveItemFromCartBtn();
-     await driver.waitUntil(async () => (theSecurePage.removeItemFromCartBtn()).isClickable(), {
-        timeout: 5000,
-        timeoutMsg: 'Remove from cart button was not clickable after 5 seconds'
-    });
+    await theSecurePage.clickTheXBtn();
+    await theSecurePage.addFirstItemToCartBtn().waitForClickable({ timeout: 10000 });
     await theSecurePage.clickAddFirstItemToCartBtn();
     await theSecurePage.openHamburgerMenu(); //If this doesn't work, try using browser.execute to click the button directly or use the burgerBtn element to click it.
     await theSecurePage.clickResetAppState();
     await theSecurePage.clickTheXBtn();
+    await theSecurePage.removeItemFromCartBtn().waitForClickable({ timeout: 10000 });
+    await theSecurePage.clickRemoveItemFromCartBtn();
+    await expect(theSecurePage.addFirstItemToCartBtn()).toBeExisting();
+    await theSecurePage.clickAddFirstItemToCartBtn();
+    await theSecurePage.removeItemFromCartBtn().waitForClickable({ timeout: 10000 });
     await theSecurePage.clickRemoveItemFromCartBtn();
     await theSecurePage.openHamburgerMenu(); //If this doesn't work, try using browser.execute to click the button directly or use the burgerBtn element to click it.
     await LogoutProcess.logout();
