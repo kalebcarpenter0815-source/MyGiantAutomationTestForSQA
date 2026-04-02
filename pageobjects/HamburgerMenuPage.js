@@ -1,4 +1,4 @@
-import { $ } from '@wdio/globals'
+import { $, browser } from '@wdio/globals'
 import myPage from './thesigningInPage.js';
 
 class theSecurePage extends myPage {
@@ -23,20 +23,31 @@ get burgerBtn () {
     }
 
 async openHamburgerMenu () {
-    // wait until the button exists in the DOM
     await this.burgerBtn.waitForExist({ timeout: 15000 });
-
-    // wait until it is actually clickable
+    await this.burgerBtn.waitForDisplayed({ timeout: 15000 });
     await this.burgerBtn.waitForClickable({ timeout: 15000 });
-
-    // scroll it into view in case something covers it
     await this.burgerBtn.scrollIntoView();
-
-    // short pause for page animation
     await browser.pause(300);
-
-    // finally click
     await this.burgerBtn.click();
+    await this.waitForMenuToOpen();
+}
+
+async waitForMenuToOpen () {
+    await this.aboutEntry.waitForDisplayed({ timeout: 10000 });
+    await this.aboutEntry.waitForClickable({ timeout: 10000 });
+}
+
+async clickSidebarEntry (entry) {
+    await entry.waitForExist({ timeout: 10000 });
+    await entry.waitForDisplayed({ timeout: 10000 });
+    await entry.scrollIntoView();
+
+    try {
+        await entry.waitForClickable({ timeout: 10000 });
+        await entry.click();
+    } catch (error) {
+        await browser.execute((element) => element.click(), await entry);
+    }
 }
 
 get allItemsEntry () {
@@ -44,9 +55,7 @@ get allItemsEntry () {
     }
 
 async clickAllItemsEntry () {
-        await this.openHamburgerMenu();
-        await this.allItemsEntry.waitForClickable({ timeout: 5000 });
-        await this.allItemsEntry.click();
+        await this.clickSidebarEntry(this.allItemsEntry);
     }
 
 get aboutEntry () {
@@ -54,23 +63,40 @@ get aboutEntry () {
     } 
 
 async clickAboutEntry () {
-        await this.aboutEntry.click();
+        await this.clickSidebarEntry(this.aboutEntry);
     }
 
 get addFirstItemToCartBtn () {
-        return $('//button[@id="add-to-cart-sauce-labs-backpack"]');
+        return $('[name="add-to-cart-sauce-labs-backpack"]');
     }
     
 async clickAddFirstItemToCartBtn () {
+        await this.addFirstItemToCartBtn.waitForClickable({ timeout: 10000 });
         await this.addFirstItemToCartBtn.click();
     }
+
+get addToCartBtnForSLBPage () {
+        return $('button[data-test="add-to-cart"]')
+    }
+async clickAddToCartBtnForSLBPage () {
+        await this.addToCartBtnForSLBPage.waitForClickable({ timeout: 10000 });
+        await this.addToCartBtnForSLBPage.click();
+}
+
+get removeSauceLabsBackpackButtonNotOnMainPage () {
+    return $('button#remove')
+}
+async clickRemoveSauceLabsBackpackButtonNotOnMainPage () {
+    await this.removeSauceLabsBackpackButtonNotOnMainPage.waitForClickable({ timeout: 10000 });
+    await this.removeSauceLabsBackpackButtonNotOnMainPage.click();
+}
 
 get resetAppState () {
         return $("#reset_sidebar_link");
     }
 
 async clickResetAppState () {
-        await this.resetAppState.click();
+        await this.clickSidebarEntry(this.resetAppState);
     }
 
 get removeItemFromCartBtn () {
@@ -87,6 +113,8 @@ get theXBtn () {
     }
 
 async clickTheXBtn () {
+        await this.theXBtn.waitForDisplayed({ timeout: 10000 });
+        await this.theXBtn.waitForClickable({ timeout: 10000 });
         await this.theXBtn.click();
     }
 
@@ -94,7 +122,7 @@ get logoutEntry () {
         return $('//a[@id="logout_sidebar_link"]');
     }
 async clickLogoutEntry () {
-        await this.logoutEntry.click();
+        await this.clickSidebarEntry(this.logoutEntry);
     }
 get sauceLabsBackpack () {
         return $('//*[contains(text(), "Sauce Labs Backpack")]');
@@ -113,6 +141,12 @@ get backToProductsBtn () {
         await this.backToProductsBtn.waitForClickable({ timeout: 10000 });
         await this.backToProductsBtn.click();
      }
+    // Add this to your Page Object file
+    async clickWhenReady(selector) {
+    await selector.waitForExist({ timeout: 10000 });
+    await selector.waitForClickable({ timeout: 10000 });
+    await selector.click();
+    }
 }
 
 export default new theSecurePage();

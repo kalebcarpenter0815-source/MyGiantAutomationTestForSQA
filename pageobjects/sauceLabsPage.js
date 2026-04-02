@@ -1,4 +1,4 @@
-import { $ } from '@wdio/globals'
+import { $, expect } from '@wdio/globals'
 import myPage from './thesigningInPage.js'
 
 class SauceLabsPageFunctions extends myPage {
