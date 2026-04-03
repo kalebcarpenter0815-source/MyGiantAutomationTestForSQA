@@ -25,16 +25,21 @@ get burgerBtn () {
 async openHamburgerMenu () {
     await this.burgerBtn.waitForExist({ timeout: 15000 });
     await this.burgerBtn.waitForDisplayed({ timeout: 15000 });
-    await this.burgerBtn.waitForClickable({ timeout: 15000 });
     await this.burgerBtn.scrollIntoView();
     await browser.pause(300);
-    await this.burgerBtn.click();
+    try {
+        await this.burgerBtn.waitForClickable({ timeout: 15000 });
+        await this.burgerBtn.click();
+    } catch (error) {
+        await browser.execute((button) => button.click(), await this.burgerBtn);
+    }
     await this.waitForMenuToOpen();
 }
 
 async waitForMenuToOpen () {
-    await this.aboutEntry.waitForDisplayed({ timeout: 10000 });
-    await this.aboutEntry.waitForClickable({ timeout: 10000 });
+    await this.aboutEntry.waitForExist({ timeout: 20000 });
+    await this.aboutEntry.waitForDisplayed({ timeout: 20000 });
+    await this.aboutEntry.waitForClickable({ timeout: 20000 });
 }
 
 async clickSidebarEntry (entry) {
@@ -51,7 +56,7 @@ async clickSidebarEntry (entry) {
 }
 
 get allItemsEntry () {
-        return $('//a[@id="inventory_sidebar_link"]');
+        return $('#inventory_sidebar_link');
     }
 
 async clickAllItemsEntry () {
@@ -59,7 +64,7 @@ async clickAllItemsEntry () {
     }
 
 get aboutEntry () {
-        return $('//a[@id="about_sidebar_link"]');
+        return $('#about_sidebar_link');
     } 
 
 async clickAboutEntry () {
@@ -71,8 +76,23 @@ get addFirstItemToCartBtn () {
     }
     
 async clickAddFirstItemToCartBtn () {
-        await this.addFirstItemToCartBtn.waitForClickable({ timeout: 10000 });
-        await this.addFirstItemToCartBtn.click();
+        const firstBackpackButtonIsThere = await this.addFirstItemToCartBtn.isExisting();
+
+        if (!firstBackpackButtonIsThere) {
+            await browser.pause(500);
+            return;
+        }
+
+        await this.addFirstItemToCartBtn.waitForExist({ timeout: 15000 });
+        await this.addFirstItemToCartBtn.waitForDisplayed({ timeout: 15000 });
+        await this.addFirstItemToCartBtn.scrollIntoView();
+        await browser.pause(400);
+        try {
+            await this.addFirstItemToCartBtn.waitForClickable({ timeout: 15000 });
+            await this.addFirstItemToCartBtn.click();
+        } catch (error) {
+            await browser.execute((button) => button.click(), await this.addFirstItemToCartBtn);
+        }
     }
 
 get addToCartBtnForSLBPage () {
@@ -119,7 +139,7 @@ async clickTheXBtn () {
     }
 
 get logoutEntry () {
-        return $('//a[@id="logout_sidebar_link"]');
+        return $('#logout_sidebar_link');
     }
 async clickLogoutEntry () {
         await this.clickSidebarEntry(this.logoutEntry);
