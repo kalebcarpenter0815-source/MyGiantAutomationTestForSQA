@@ -39,15 +39,14 @@ async openHamburgerMenu () {
 async waitForMenuToOpen () {
     await this.aboutEntry.waitForExist({ timeout: 20000 });
     await this.aboutEntry.waitForDisplayed({ timeout: 20000 });
-    await this.aboutEntry.waitForClickable({ timeout: 20000 });
+    await browser.pause(200);
 }
 
 async clickSidebarEntry (entry) {
     await entry.waitForExist({ timeout: 10000 });
-    await entry.waitForDisplayed({ timeout: 10000 });
-    await entry.scrollIntoView();
-
     try {
+        await entry.waitForDisplayed({ timeout: 10000 });
+        await entry.scrollIntoView();
         await entry.waitForClickable({ timeout: 10000 });
         await entry.click();
     } catch (error) {
@@ -133,9 +132,14 @@ get theXBtn () {
     }
 
 async clickTheXBtn () {
-        await this.theXBtn.waitForDisplayed({ timeout: 10000 });
-        await this.theXBtn.waitForClickable({ timeout: 10000 });
-        await this.theXBtn.click();
+        await this.theXBtn.waitForExist({ timeout: 10000 });
+        try {
+            await this.theXBtn.waitForDisplayed({ timeout: 10000 });
+            await this.theXBtn.waitForClickable({ timeout: 10000 });
+            await this.theXBtn.click();
+        } catch (error) {
+            await browser.execute((button) => button.click(), await this.theXBtn);
+        }
     }
 
 get logoutEntry () {

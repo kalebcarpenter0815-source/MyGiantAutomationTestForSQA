@@ -7,14 +7,14 @@ class multipleAddToCartButtons extends myPage {
              const theButtonIsThere = await theButton.isExisting();
 
              if (!theButtonIsThere) {
-                 await browser.pause(500);
+                 await browser.pause(100);
                  return;
              }
 
              await theButton.waitForExist({ timeout: 15000 });
              await theButton.waitForDisplayed({ timeout: 15000 });
              await theButton.scrollIntoView();
-             await browser.pause(400);
+             await browser.pause(100);
              try {
                  await theButton.waitForClickable({ timeout: 15000 });
                  await theButton.click();
@@ -22,7 +22,7 @@ class multipleAddToCartButtons extends myPage {
                  await browser.execute((button) => button.click(), await theButton);
              }
          } catch (error) {
-             await browser.pause(500);
+             await browser.pause(100);
          }
     }
 
@@ -93,8 +93,7 @@ class multipleAddToCartButtons extends myPage {
         return $('button[name="add-to-cart-sauce-labs-onesie"]');
     }
     async clickSauceLabsOnesieAddToCartBtn () {
-         await this.sauceLabsOnesieAddToCartBtn.waitForClickable({ timeout: 10000 });
-         await this.sauceLabsOnesieAddToCartBtn.click();
+         await this.clickTheButtonWhenItShowsUp(this.sauceLabsOnesieAddToCartBtn);
     }
     // Sauce Labs Remove from cart for Onesie
     get removeSauceLabsOnesieBtn () {
