@@ -1,0 +1,20 @@
+02599b0dbf0c92e803d9129c1e084a61bfce9a0c|02599b0|2026-03-20T11:56:07-06:00|kalebcarpenter0815-source||first automation file for committing
+6e7d476d47b8a075625fd2e6a6365f70c7b52c29|6e7d476|2026-03-23T14:24:27-06:00|kalebcarpenter0815-source||Updated login test and page object getters for my Positive and Negative test
+2b8aa0e1fd0483359189d9301d643e5d85dd1487|2b8aa0e|2026-03-26T14:37:25-06:00|kalebcarpenter0815-source||my work at home project file
+71d2c0ee78ccf499910281ca464115e2b0ae5d78|71d2c0e|2026-03-26T14:39:18-06:00|kalebcarpenter0815-source||first commit
+b8d697319abc825b7f408cbdf97c28d2161c9929|b8d6973|2026-03-27T15:30:46-06:00|kalebcarpenter0815-source||Almost there commit
+f0ff4e63f0f523fe5d7841c92a2ce58841fbdbab|f0ff4e6|2026-03-26T21:41:33-06:00|kalebcarpenter0815||Initial commit - WebdriverIO test project
+ae027d9a40e604a8b9ac368a427699ade3ff427b|ae027d9|2026-03-27T15:34:45-06:00|kalebcarpenter0815-source||Merge remote changes and resolve conflicts
+72760f13b1fbe46d6aaaa281b3e16e10bd480540|72760f1|2026-03-28T01:08:19-06:00|kalebcarpenter0815||Almost THERE!
+e027bcf56f0badfe08d5f36e0dacc28a32014243|e027bcf|2026-03-29T21:36:39-06:00|kalebcarpenter0815-source||Fixed hamburger menu logout flow and About link automation
+03c7316d087777f6aa64b247b8b88b871159c238|03c7316|2026-03-30T18:01:55-06:00|kalebcarpenter0815-source||WE DID IT, IT WORKS!
+9d45b189c7d67c3bfba548fb523c6162dab2d783|9d45b18|2026-03-30T18:08:49-06:00|kalebcarpenter0815-source|restore-ITWORKS|IT WORKS
+7abbd882a12da5b3aacba2195c38c878667e8ab1|7abbd88|2026-04-02T15:51:58-06:00|kalebcarpenter0815-source||My first automation test for positive and negative
+74933db875ff44ae27ab16e33d5258c69d85b976|74933db|2026-04-02T16:29:22-06:00|kalebcarpenter0815-source||Updated my first test case automation test to be better
+ac0e3d1b2fa38bb8005b6a55779ddafedf97839c|ac0e3d1|2026-04-02T16:03:40-06:00|kalebcarpenter0815-source||Rename myAIHelpTest.js to MyMainTest.js
+886065b3e6955ffafbb1e7f90cd78468c48fbf9f|886065b|2026-04-02T16:40:38-06:00|kalebcarpenter0815-source||Merge branch 'main' of https://github.com/kalebcarpenter0815-source/MyGiantAutomationTestForSQA
+68fab05aa25d3c1ac2179dfa28c489712fa71c26|68fab05|2026-04-02T21:40:34-06:00|kalebcarpenter0815-source||My updated main test for the second test case and it is the first edit
+632d8be8bd429a233270c7c9520accbe21158428|632d8be|2026-04-02T21:51:33-06:00|kalebcarpenter0815-source|origin/backup-current, temp-backup, restore-632d8be|My official updated and polished and shorter test for the second test case and it is the second edit
+61f914aa84853d2edd33f637cfa64f140166509c|61f914a|2026-04-04T20:32:59-06:00|kalebcarpenter0815-source|origin/backup-main, backup-main|My official updated and polished and shorter test for the second test case and it is the second edit
+28cb8dfc859a6eeab2f2205d1fd0e107bdf8e3a5|28cb8df|2026-04-04T20:35:47-06:00|kalebcarpenter0815-source|HEAD -> main, origin/main, origin/HEAD|Merge pull request #1 from kalebcarpenter0815-source:backup-main
+707e834779586d0953add2e9f8f740454ec99cd7|707e834|2026-04-04T21:13:22-06:00|kalebcarpenter0815-source|origin/restore-good-version, restore-good-version|IT WORKS
