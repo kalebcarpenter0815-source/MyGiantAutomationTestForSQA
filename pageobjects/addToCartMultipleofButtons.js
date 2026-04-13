@@ -7,22 +7,21 @@ class multipleAddToCartButtons extends myPage {
              const theButtonIsThere = await theButton.isExisting();
 
              if (!theButtonIsThere) {
-                 await browser.pause(100);
-                 return;
+                 return false;
              }
 
              await theButton.waitForExist({ timeout: 15000 });
              await theButton.waitForDisplayed({ timeout: 15000 });
              await theButton.scrollIntoView();
-             await browser.pause(100);
              try {
                  await theButton.waitForClickable({ timeout: 15000 });
                  await theButton.click();
              } catch (error) {
                  await browser.execute((button) => button.click(), await theButton);
              }
+             return true;
          } catch (error) {
-             await browser.pause(100);
+             return false;
          }
     }
 
@@ -67,7 +66,7 @@ class multipleAddToCartButtons extends myPage {
              // problem_user is buggy on this site sometimes, so use the other button if the Bolt one never showed up
              await this.clickTheButtonWhenItShowsUp(this.removeSauceLabsBoltTShirtBtnProblemUserBackup);
          } else {
-             await browser.pause(500);
+             return false;
          }
     }
 
@@ -126,6 +125,10 @@ class multipleAddToCartButtons extends myPage {
     }
     async clickSauceLabsShoppingCartBtn () {
          await this.clickTheButtonWhenItShowsUp(this.sauceLabsShoppingCartBtn);
+    }
+
+    get shoppingCartBadge () {
+        return $('.shopping_cart_badge');
     }
 
 

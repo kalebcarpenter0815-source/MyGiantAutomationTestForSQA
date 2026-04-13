@@ -1,5 +1,5 @@
 import signingInPage from './thesigningInPage.js';
-import { browser } from '@wdio/globals';
+import { $, browser } from '@wdio/globals';
 
 class LogoutProcess extends signingInPage {
     get hamburgerMenu () {
@@ -23,6 +23,13 @@ class LogoutProcess extends signingInPage {
             const logoutLink = document.getElementById('logout_sidebar_link');
             if (logoutLink) logoutLink.click();
         });
+    }
+
+    async logoutAtTheEnd () {
+        let burgerBtn = await this.hamburgerMenu();
+        await burgerBtn.waitForClickable({ timeout: 5000 });
+        await burgerBtn.scrollIntoView({ block: 'start', inline: 'start' });
+        await this.logout();
     }
 }
 

@@ -1,13 +1,21 @@
-import { $, $$, browser, expect } from '@wdio/globals'
+import { $, $$, browser } from '@wdio/globals'
 import myPage from './thesigningInPage.js'
 
 class SauceLabsPageFunctions extends myPage {
+    get sauceLabsSearchButtons () {
+        return 'button[aria-label*="Search"], button[title*="Search"], button[class*="IconButton"]';
+    }
+
+    get sauceLabsCloseButtons () {
+        return 'button[aria-label*="Close"], button[aria-label*="close"], button[class*="close"], button[class*="Close"]';
+    }
+
     get sauceLabsSearchBtn () {
-        return $('button[aria-label*="Search"], button[title*="Search"], button[class*="IconButton"]');
+        return $(this.sauceLabsSearchButtons);
     }
 
     get sauceLabsSearchXBtn () {
-        return $('button[aria-label*="Close"], button[aria-label*="close"], button[class*="close"], button[class*="Close"]');
+        return $(this.sauceLabsCloseButtons);
     }
 
     async waitForSauceLabsPageToLoad () {
@@ -26,30 +34,57 @@ class SauceLabsPageFunctions extends myPage {
         );
     }
 
+    async waitForPageToSettle () {
+        await browser.waitUntil(
+            async () => {
+                try {
+                    return await browser.execute(() => document.readyState === 'complete');
+                } catch (error) {
+                    return true;
+                }
+            },
+            { timeout: 10000, timeoutMsg: 'Sauce Labs page did not finish getting ready' }
+        );
+    }
+
+    async getFirstDisplayedButton (selector) {
+        const buttons = await $$(selector);
+
+        for (const button of buttons) {
+            if (await button.isDisplayed()) {
+                return button;
+            }
+        }
+
+        return null;
+    }
+
     async maybeOpenAndCloseSearch () {
         try {
-            const searchButtons = await $$('button[aria-label*="Search"], button[title*="Search"], button[class*="IconButton"]');
+            await this.waitForSauceLabsPageToLoad();
+            await this.waitForPageToSettle();
 
-            if (searchButtons.length === 0) {
-                return false;
-            }
-
-            const visibleSearchButton = await searchButtons.find(async (button) => await button.isDisplayed());
+            const visibleSearchButton = await this.getFirstDisplayedButton(this.sauceLabsSearchButtons);
             if (!visibleSearchButton) {
                 return false;
             }
 
             await visibleSearchButton.scrollIntoView();
-            await browser.pause(500);
+            await visibleSearchButton.waitForClickable({ timeout: 10000 });
             await visibleSearchButton.click();
 
-            const closeButtons = await $$('button[aria-label*="Close"], button[aria-label*="close"], button[class*="close"], button[class*="Close"]');
-            const visibleCloseButton = await closeButtons.find(async (button) => await button.isDisplayed());
+            await browser.waitUntil(
+                async () => !!(await this.getFirstDisplayedButton(this.sauceLabsCloseButtons)),
+                { timeout: 5000, timeoutMsg: 'Sauce Labs close search button did not show up in time' }
+            ).catch(() => false);
+
+            const visibleCloseButton = await this.getFirstDisplayedButton(this.sauceLabsCloseButtons);
 
             if (!visibleCloseButton) {
                 return true;
             }
 
+            await visibleCloseButton.waitForClickable({ timeout: 5000 });
             await visibleCloseButton.click();
             return true;
         } catch (error) {
@@ -59,7 +94,6 @@ class SauceLabsPageFunctions extends myPage {
 
     async clickSauceLabsSearchBtn () {
         await this.sauceLabsSearchBtn.waitForExist({ timeout: 10000 });
-        await expect(this.sauceLabsSearchBtn).toBeExisting();
         await this.sauceLabsSearchBtn.waitForClickable({ timeout: 10000 });
         await this.sauceLabsSearchBtn.click();
     }

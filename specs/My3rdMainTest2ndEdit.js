@@ -5,80 +5,7 @@ import { browser, expect } from '@wdio/globals';
 import theLoginPage from '../pageobjects/loginpage.js';
 import theSecurePage from '../pageobjects/HamburgerMenuPage.js';
 import LogoutProcess from '../pageobjects/secureLogoutPage.js';
-import sauceLabsPageFunctions from '../pageobjects/sauceLabsPage.js';
 import addToCartMultipleofButtons from '../pageobjects/addToCartMultipleofButtons.js';
-
-// These little helper functions are here just to keep this test file easier to read for me
-async function openAboutAndComeBack(expectedUrlPiece = 'saucelabs.com', returnTimeout = 10000) {
-       await theSecurePage.openHamburgerMenu();
-       await browser.pause(500); // wait for menu animation
-
-       await browser.waitUntil(
-           async () => theSecurePage.aboutEntry.isExisting(),
-           { timeout: 5000, timeoutMsg: 'About link did not appear after 5 seconds' }
-       );
-       await browser.waitUntil(
-           async () => theSecurePage.aboutEntry.isDisplayed(),
-           { timeout: 5000, timeoutMsg: 'About link was not showing after 5 seconds' }
-       );
-
-       await browser.execute(() => {
-           const link = document.querySelector('#about_sidebar_link');
-           if (link) link.setAttribute('target', '_self');
-       });
-
-       const handlesBeforeAboutClick = await browser.getWindowHandles();
-
-       await theSecurePage.clickAboutEntry();
-
-       await browser.waitUntil(
-           async () => {
-               const handles = await browser.getWindowHandles();
-               if (handles.length > handlesBeforeAboutClick.length) return true;
-               return (await browser.getUrl()).includes(expectedUrlPiece);
-           },
-           { timeout: 15000, timeoutMsg: 'About click did not open Sauce Labs or a new tab' }
-       );
-
-       const handlesAfterAboutClick = await browser.getWindowHandles();
-       if (handlesAfterAboutClick.length > handlesBeforeAboutClick.length) {
-           const newHandle = handlesAfterAboutClick.find((h) => !handlesBeforeAboutClick.includes(h));
-           if (newHandle) {
-               await browser.switchToWindow(newHandle);
-           }
-       }
-
-       await browser.waitUntil(
-           async () => (await browser.getUrl()).includes(expectedUrlPiece),
-           { timeout: 15000, timeoutMsg: 'Page transition to Sauce Labs failed' }
-       );
-
-       await browser.pause(2000); // wait for animations
-       await browser.pause(1000);
-       await sauceLabsPageFunctions.maybeOpenAndCloseSearch();
-       await browser.pause(500);
-
-       await browser.url('https://www.saucedemo.com/inventory.html');
-       await browser.waitUntil(
-           async () => (await browser.getUrl()).includes('inventory.html'),
-           { timeout: returnTimeout, timeoutMsg: 'Failed to return to inventory' }
-       );
-}
-
-async function resetTheAppStateAndCloseTheMenu() {
-       await theSecurePage.openHamburgerMenu();
-       await browser.pause(500); // wait for menu animation
-       await theSecurePage.clickResetAppState();
-       await theSecurePage.theXBtn.waitForExist({ timeout: 5000 });
-       await theSecurePage.clickTheXBtn();
-}
-
-async function logoutAtTheEnd() {
-       let burgerBtn = await LogoutProcess.hamburgerMenu();
-       await burgerBtn.waitForClickable({ timeout: 5000 });
-       await burgerBtn.scrollIntoView({ block: 'start', inline: 'start' });
-       await LogoutProcess.logout();
-}
 
 describe('My Login application', () => {
 
@@ -90,14 +17,17 @@ describe('My Login application', () => {
        await expect(theSecurePage.landingPage).toBeExisting();
 
        // Open Hamburger Menu and use the About page
-       await openAboutAndComeBack('saucelabs.com', 10000);
+       await theSecurePage.openAboutAndComeBack('saucelabs.com', 10000);
+       let currentUrlAfterComingBack = await browser.getUrl();
+       await expect(currentUrlAfterComingBack).toContain('inventory.html');
 
 
        // Cart operations
     //    await theSecurePage.addFirstItemToCartBtn.waitForClickable();
        await theSecurePage.clickAddFirstItemToCartBtn();
+       await expect(addToCartMultipleofButtons.shoppingCartBadge).toBeExisting();
 
-       await resetTheAppStateAndCloseTheMenu();
+       await theSecurePage.resetTheAppStateAndCloseTheMenu();
 
 
 
@@ -135,8 +65,6 @@ describe('My Login application', () => {
 
        // Open Hamburger menu on backpack page
        await theSecurePage.openHamburgerMenu();
- 
-       await browser.pause(1000); // wait for menu animation
        await theSecurePage.clickAllItemsEntry(); // waits 10s internally
 
 
@@ -147,7 +75,6 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking All Items' }
        );
-       await browser.pause(1000); // wait for any animations
        await theSecurePage.clickSauceLabsBackpackBtn();
 
 
@@ -183,12 +110,12 @@ describe('My Login application', () => {
         async () => (await browser.getUrl()).includes('cart.html'),
         { timeout: 10000, timeoutMsg: 'Shopping Cart page did not load after clicking on the Shopping Cart icon' }
        );
+       await expect(addToCartMultipleofButtons.sauceLabsContinueShoppingBtn).toBeExisting();
 
        // REMOVE ONE ITEM FROM CART
        await theSecurePage.clickRemoveItemFromCartBtn(); // Removed the Backpack from the cart
 
        // Lets make sure the page actually loaded visually
-       await browser.pause(1000);
 
        // Click the Continue Shopping button to continue with the test
        await addToCartMultipleofButtons.clickSauceLabsContinueShoppingBtn(); // Clicks the Continue Shopping button
@@ -203,7 +130,6 @@ describe('My Login application', () => {
        await addToCartMultipleofButtons.clickSauceLabsBoltTShirt(); // Bolt T-Shirt
 
        // Lets make sure the animation to the next button works without error
-       await browser.pause(500);
 
        // Click the Sauce Labs shopping cart icon in the top right hand corner of the screen
        await addToCartMultipleofButtons.clickSauceLabsShoppingCartBtn();
@@ -296,7 +222,10 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking Back to Products' }
        );
-       await logoutAtTheEnd();
+       let currentUrlBeforeLogout = await browser.getUrl();
+       await expect(currentUrlBeforeLogout).toContain('inventory.html');
+       await LogoutProcess.logoutAtTheEnd();
+       await expect(theLoginPage.inputYourUsername()).toBeExisting();
    });
 });
      
@@ -313,13 +242,16 @@ describe('My Login application', () => {
        await expect(theSecurePage.landingPage).toBeExisting();
 
        // Open Hamburger Menu and use the About page
-       await openAboutAndComeBack('/error/404', 5000);
+       await theSecurePage.openAboutAndComeBack('/error/404', 5000);
+       let currentUrlAfterComingBack = await browser.getUrl();
+       await expect(currentUrlAfterComingBack).toContain('inventory.html');
 
 
        // Cart operations
     //    await theSecurePage.addFirstItemToCartBtn.waitForClickable();
        await theSecurePage.clickAddFirstItemToCartBtn();
-       await resetTheAppStateAndCloseTheMenu();
+       await expect(addToCartMultipleofButtons.shoppingCartBadge).toBeExisting();
+       await theSecurePage.resetTheAppStateAndCloseTheMenu();
 
 
        await browser.refresh();
@@ -350,8 +282,6 @@ describe('My Login application', () => {
 
        // Open Hamburger menu on backpack page
        await theSecurePage.openHamburgerMenu();
- 
-       await browser.pause(1000); // wait for menu animation
        await theSecurePage.clickAllItemsEntry(); // waits 10s internally
 
 
@@ -362,7 +292,6 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking All Items' }
        );
-       await browser.pause(1000); // wait for any animations
        await theSecurePage.clickSauceLabsBackpackBtn();
 
 
@@ -400,12 +329,12 @@ describe('My Login application', () => {
         async () => (await browser.getUrl()).includes('cart.html'),
         { timeout: 10000, timeoutMsg: 'Shopping Cart page did not load after clicking on the Shopping Cart icon' }
        );
+       await expect(addToCartMultipleofButtons.sauceLabsContinueShoppingBtn).toBeExisting();
 
        // REMOVE ONE ITEM FROM CART
        await theSecurePage.clickRemoveItemFromCartBtn(); // Removed the Backpack from the cart
 
        // Lets make sure the page actually loaded visually
-       await browser.pause(1000);
 
        // Click the Continue Shopping button to continue with the test
        await addToCartMultipleofButtons.clickSauceLabsContinueShoppingBtn(); // Clicks the Continue Shopping button
@@ -420,7 +349,6 @@ describe('My Login application', () => {
        await addToCartMultipleofButtons.clickSauceLabsBoltTShirt(); // Bolt T-Shirt
 
        // Lets make sure the animation to the next button works without error
-       await browser.pause(500);
 
        // Click the Sauce Labs shopping cart icon in the top right hand corner of the screen
        await addToCartMultipleofButtons.clickSauceLabsShoppingCartBtn();
@@ -514,7 +442,10 @@ describe('My Login application', () => {
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking Back to Products' }
        );
 
-       await logoutAtTheEnd();
+       let currentUrlBeforeLogout = await browser.getUrl();
+       await expect(currentUrlBeforeLogout).toContain('inventory.html');
+       await LogoutProcess.logoutAtTheEnd();
+       await expect(theLoginPage.inputYourUsername()).toBeExisting();
    });
 });
 
@@ -533,13 +464,14 @@ describe('My Login application', () => {
        await theLoginPage.login('performance_glitch_user', 'secret_sauce');
        await expect(theSecurePage.landingPage).toBeExisting({ timeout: 30000, timeoutMsg: 'Login took too long and could not be completed in 30 seconds'});
        // Open Hamburger Menu and use the About page
-       await openAboutAndComeBack('saucelabs.com', 20000);
+       await theSecurePage.openAboutAndComeBack('saucelabs.com', 20000);
+       let currentUrlAfterComingBack = await browser.getUrl();
+       await expect(currentUrlAfterComingBack).toContain('inventory.html');
 
        // performance_glitch_user is very slow and buggy, so stop here after proving login and Sauce Labs worked
        const stopHereForNow = false;
        if (stopHereForNow) {
         await theSecurePage.openHamburgerMenu();
-        await browser.pause(500);
         await theSecurePage.clickLogoutEntry();
         return;
         }
@@ -551,7 +483,7 @@ describe('My Login application', () => {
     //    await theSecurePage.addFirstItemToCartBtn.waitForClickable();
        await theSecurePage.clickAddFirstItemToCartBtn();
 
-       await resetTheAppStateAndCloseTheMenu();
+       await theSecurePage.resetTheAppStateAndCloseTheMenu();
 
 
 
@@ -591,8 +523,6 @@ describe('My Login application', () => {
 
        // Open Hamburger menu on backpack page
        await theSecurePage.openHamburgerMenu();
- 
-       await browser.pause(1000); // wait for menu animation
        await theSecurePage.clickAllItemsEntry(); // waits 10s internally
 
 
@@ -603,7 +533,6 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking All Items' }
        );
-       await browser.pause(1000); // wait for any animations
        await theSecurePage.clickSauceLabsBackpackBtn();
 
 
@@ -628,6 +557,7 @@ describe('My Login application', () => {
            async () => theSecurePage.removeSauceLabsBackpackButtonNotOnMainPage.isExisting(),
            { timeout: 10000, timeoutMsg: 'The Remove button on the Sauce Labs Backpack page was not clickable'}
        )
+       await expect(theSecurePage.removeSauceLabsBackpackButtonNotOnMainPage).toBeExisting();
 
 
 
@@ -659,12 +589,12 @@ describe('My Login application', () => {
         async () => (await browser.getUrl()).includes('cart.html'),
         { timeout: 10000, timeoutMsg: 'Shopping Cart page did not load after clicking on the Shopping Cart icon' }
        );
+       await expect(addToCartMultipleofButtons.sauceLabsContinueShoppingBtn).toBeExisting();
 
        // REMOVE ONE ITEM FROM CART
        await theSecurePage.clickRemoveItemFromCartBtn(); // Removed the Backpack from the cart
 
        // Lets make sure the page actually loaded visually
-       await browser.pause(1000);
 
        // Click the Continue Shopping button to continue with the test
        await addToCartMultipleofButtons.clickSauceLabsContinueShoppingBtn(); // Clicks the Continue Shopping button
@@ -679,7 +609,6 @@ describe('My Login application', () => {
        await addToCartMultipleofButtons.clickSauceLabsBoltTShirt(); // Bolt T-Shirt
 
        // Lets make sure the animation to the next button works without error
-       await browser.pause(500);
 
        // Click the Sauce Labs shopping cart icon in the top right hand corner of the screen
        await addToCartMultipleofButtons.clickSauceLabsShoppingCartBtn();
@@ -773,7 +702,10 @@ describe('My Login application', () => {
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking Back to Products' }
        );
 
-       await logoutAtTheEnd();
+       let currentUrlBeforeLogout = await browser.getUrl();
+       await expect(currentUrlBeforeLogout).toContain('inventory.html');
+       await LogoutProcess.logoutAtTheEnd();
+       await expect(theLoginPage.inputYourUsername()).toBeExisting();
    });
 });
 
@@ -794,13 +726,14 @@ describe('My Login application', () => {
        await expect(theSecurePage.landingPage).toBeExisting({ timeout: 30000, timeoutMsg: 'Login took too long and could not be completed in 30 seconds'});
 
        // Open Hamburger Menu and use the About page
-       await openAboutAndComeBack('saucelabs.com', 20000);
+       await theSecurePage.openAboutAndComeBack('saucelabs.com', 20000);
+       let currentUrlAfterComingBack = await browser.getUrl();
+       await expect(currentUrlAfterComingBack).toContain('inventory.html');
 
        // error_user is buggy too, so stop here after proving login and Sauce Labs worked
        const stopHereForNow = false;
        if (stopHereForNow) {
         await theSecurePage.openHamburgerMenu();
-        await browser.pause(500);
         await theSecurePage.clickLogoutEntry();
         return;
         }
@@ -809,7 +742,8 @@ describe('My Login application', () => {
        // Cart operations
        // error_user is not showing that add to cart button here, so just make sure the inventory page loaded and keep going
        await theSecurePage.sauceLabsBackpack.waitForExist({ timeout: 10000 });
-       await resetTheAppStateAndCloseTheMenu();
+       await expect(theSecurePage.sauceLabsBackpack).toBeExisting();
+       await theSecurePage.resetTheAppStateAndCloseTheMenu();
 
 
 
@@ -848,8 +782,6 @@ describe('My Login application', () => {
 
        // Open Hamburger menu on backpack page
        await theSecurePage.openHamburgerMenu();
- 
-       await browser.pause(1000); // wait for menu animation
        await theSecurePage.clickAllItemsEntry(); // waits 10s internally
 
 
@@ -860,7 +792,6 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking All Items' }
        );
-       await browser.pause(1000); // wait for any animations
        await theSecurePage.clickSauceLabsBackpackBtn();
 
 
@@ -898,12 +829,12 @@ describe('My Login application', () => {
         async () => (await browser.getUrl()).includes('cart.html'),
         { timeout: 10000, timeoutMsg: 'Shopping Cart page did not load after clicking on the Shopping Cart icon' }
        );
+       await expect(addToCartMultipleofButtons.sauceLabsContinueShoppingBtn).toBeExisting();
 
        // REMOVE ONE ITEM FROM CART
        await theSecurePage.clickRemoveItemFromCartBtn(); // Removed the Backpack from the cart
 
        // Lets make sure the page actually loaded visually
-       await browser.pause(1000);
 
        // Click the Continue Shopping button to continue with the test
        await addToCartMultipleofButtons.clickSauceLabsContinueShoppingBtn(); // Clicks the Continue Shopping button
@@ -918,7 +849,6 @@ describe('My Login application', () => {
        await addToCartMultipleofButtons.clickSauceLabsBoltTShirt(); // Bolt T-Shirt
 
        // Lets make sure the animation to the next button works without error
-       await browser.pause(500);
 
        // Click the Sauce Labs shopping cart icon in the top right hand corner of the screen
        await addToCartMultipleofButtons.clickSauceLabsShoppingCartBtn();
@@ -1011,7 +941,10 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking Back to Products' }
        );
-       await logoutAtTheEnd();
+       let currentUrlBeforeLogout = await browser.getUrl();
+       await expect(currentUrlBeforeLogout).toContain('inventory.html');
+       await LogoutProcess.logoutAtTheEnd();
+       await expect(theLoginPage.inputYourUsername()).toBeExisting();
    });
 });
 
@@ -1033,7 +966,9 @@ describe('My Login application', () => {
        await expect(theSecurePage.landingPage).toBeExisting({ timeout: 30000, timeoutMsg: 'Login took too long and could not be completed in 30 seconds'});
 
        // Open Hamburger Menu and use the About page
-       await openAboutAndComeBack('saucelabs.com', 5000);
+       await theSecurePage.openAboutAndComeBack('saucelabs.com', 5000);
+       let currentUrlAfterComingBack = await browser.getUrl();
+       await expect(currentUrlAfterComingBack).toContain('inventory.html');
 
 
 
@@ -1041,9 +976,10 @@ describe('My Login application', () => {
        // Cart operations
        // visual_user is not showing that add to cart button here, so just make sure the inventory page loaded and keep going
        await theSecurePage.sauceLabsBackpack.waitForExist({ timeout: 10000 });
+       await expect(theSecurePage.sauceLabsBackpack).toBeExisting();
 
 
-       await resetTheAppStateAndCloseTheMenu();
+       await theSecurePage.resetTheAppStateAndCloseTheMenu();
 
 
 
@@ -1082,8 +1018,6 @@ describe('My Login application', () => {
 
        // Open Hamburger menu on backpack page
        await theSecurePage.openHamburgerMenu();
- 
-       await browser.pause(1000); // wait for menu animation
        await theSecurePage.clickAllItemsEntry(); // waits 10s internally
 
 
@@ -1094,7 +1028,6 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking All Items' }
        );
-       await browser.pause(1000); // wait for any animations
        await theSecurePage.clickSauceLabsBackpackBtn();
 
 
@@ -1119,6 +1052,7 @@ describe('My Login application', () => {
        // )
        await theSecurePage.removeSauceLabsBackpackButtonNotOnMainPage.waitForDisplayed({ timeout: 5000 });
        await theSecurePage.clickRemoveSauceLabsBackpackButtonNotOnMainPage();
+       await expect(theSecurePage.backToProductsBtn).toBeExisting();
 
 
        // Wait until backpack page is fully loaded again
@@ -1157,12 +1091,12 @@ describe('My Login application', () => {
         async () => (await browser.getUrl()).includes('cart.html'),
         { timeout: 10000, timeoutMsg: 'Shopping Cart page did not load after clicking on the Shopping Cart icon' }
        );
+       await expect(addToCartMultipleofButtons.sauceLabsContinueShoppingBtn).toBeExisting();
 
        // REMOVE ONE ITEM FROM CART
        await theSecurePage.clickRemoveItemFromCartBtn(); // Removed the Backpack from the cart
 
        // Lets make sure the page actually loaded visually
-       await browser.pause(1000);
 
        // Click the Continue Shopping button to continue with the test
        await addToCartMultipleofButtons.clickSauceLabsContinueShoppingBtn(); // Clicks the Continue Shopping button
@@ -1177,7 +1111,6 @@ describe('My Login application', () => {
        await addToCartMultipleofButtons.clickSauceLabsBoltTShirt(); // Bolt T-Shirt
 
        // Lets make sure the animation to the next button works without error
-       await browser.pause(500);
 
        // Click the Sauce Labs shopping cart icon in the top right hand corner of the screen
        await addToCartMultipleofButtons.clickSauceLabsShoppingCartBtn();
@@ -1270,7 +1203,10 @@ describe('My Login application', () => {
            async () => (await browser.getUrl()).includes('inventory.html'),
            { timeout: 10000, timeoutMsg: 'Main inventory page did not load after clicking Back to Products' }
        );
-       await logoutAtTheEnd();
+       let currentUrlBeforeLogout = await browser.getUrl();
+       await expect(currentUrlBeforeLogout).toContain('inventory.html');
+       await LogoutProcess.logoutAtTheEnd();
+       await expect(theLoginPage.inputYourUsername()).toBeExisting();
    });
 });
 
@@ -1296,6 +1232,8 @@ describe('Negative Login Tests', () => {
            await theLoginPage.open();
            await theLoginPage.login(test.username, test.password);
            await expect(test.errorElement()).toBeExisting();
+           await expect(theLoginPage.inputYourUsername()).toBeExisting();
        });
    }
 });
+
