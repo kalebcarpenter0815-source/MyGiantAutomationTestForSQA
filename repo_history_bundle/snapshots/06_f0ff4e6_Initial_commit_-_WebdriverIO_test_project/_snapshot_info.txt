@@ -1,6 +1,0 @@
-Commit: f0ff4e63f0f523fe5d7841c92a2ce58841fbdbab
-Short: f0ff4e6
-Date: 2026-03-26T21:41:33-06:00
-Author: kalebcarpenter0815
-Refs: 
-Subject: Initial commit - WebdriverIO test project

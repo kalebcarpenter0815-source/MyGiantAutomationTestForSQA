@@ -1,6 +1,0 @@
-Commit: 71d2c0ee78ccf499910281ca464115e2b0ae5d78
-Short: 71d2c0e
-Date: 2026-03-26T14:39:18-06:00
-Author: kalebcarpenter0815-source
-Refs: 
-Subject: first commit

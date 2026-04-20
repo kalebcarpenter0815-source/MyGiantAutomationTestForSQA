@@ -1,6 +1,0 @@
-Commit: 6e7d476d47b8a075625fd2e6a6365f70c7b52c29
-Short: 6e7d476
-Date: 2026-03-23T14:24:27-06:00
-Author: kalebcarpenter0815-source
-Refs: 
-Subject: Updated login test and page object getters for my Positive and Negative test

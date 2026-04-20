@@ -1,6 +1,0 @@
-Commit: 68fab05aa25d3c1ac2179dfa28c489712fa71c26
-Short: 68fab05
-Date: 2026-04-02T21:40:34-06:00
-Author: kalebcarpenter0815-source
-Refs: 
-Subject: My updated main test for the second test case and it is the first edit

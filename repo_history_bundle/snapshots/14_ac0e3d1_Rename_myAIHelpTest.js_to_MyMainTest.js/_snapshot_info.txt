@@ -1,6 +1,0 @@
-Commit: ac0e3d1b2fa38bb8005b6a55779ddafedf97839c
-Short: ac0e3d1
-Date: 2026-04-02T16:03:40-06:00
-Author: kalebcarpenter0815-source
-Refs: 
-Subject: Rename myAIHelpTest.js to MyMainTest.js
